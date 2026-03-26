@@ -28,61 +28,56 @@ def create_experiment2_summary(baseline_sim, memory_sim, baseline_results, memor
     """
     os.makedirs(output_dir, exist_ok=True)
     
-    # 创建大型画布 (4 行 3 列)
-    fig = plt.figure(figsize=(20, 16))
+    # 创建大型画布 (5 行 2 列)
+    fig = plt.figure(figsize=(16, 18))
     fig.suptitle('实验 2: 消费者记忆机制 - 综合分析', fontsize=20, fontweight='bold', y=0.98)
     
     # ========== 第一行：依赖等级对比 ==========
     # 子图 1: 基线模型等级分布
-    ax1 = plt.subplot(4, 3, 1)
+    ax1 = plt.subplot(5, 2, 1)
     _plot_baseline_level_distribution(ax1, baseline_results)
     
     # 子图 2: 记忆增强模型等级分布
-    ax2 = plt.subplot(4, 3, 2)
+    ax2 = plt.subplot(5, 2, 2)
     _plot_memory_level_distribution(ax2, memory_results)
     
+    # ========== 第二行：差异对比与满意度 ==========
     # 子图 3: 差异对比
-    ax3 = plt.subplot(4, 3, 3)
+    ax3 = plt.subplot(5, 2, 3)
     _plot_level_difference(ax3, baseline_results, memory_results)
     
-    # ========== 第二行：关键指标演化 ==========
     # 子图 4: 满意度演化
-    ax4 = plt.subplot(4, 3, 4)
+    ax4 = plt.subplot(5, 2, 4)
     _plot_satisfaction_evolution(ax4, baseline_sim, memory_sim)
     
+    # ========== 第三行：AI 使用率与错误率 ==========
     # 子图 5: AI 使用率演化
-    ax5 = plt.subplot(4, 3, 5)
+    ax5 = plt.subplot(5, 2, 5)
     _plot_ai_usage_evolution(ax5, baseline_sim, memory_sim)
     
     # 子图 6: 错误率演化
-    ax6 = plt.subplot(4, 3, 6)
+    ax6 = plt.subplot(5, 2, 6)
     _plot_error_rate_evolution(ax6, baseline_sim, memory_sim)
     
-    # ========== 第三行：记忆动态 ==========
+    # ========== 第四行：信任动态与雷达图 ==========
     # 子图 7: 信任度演化
-    ax7 = plt.subplot(4, 3, 7)
-    _plot_trust_dynamics(ax7, memory_results)
+    ax7 = plt.subplot(5, 2, 7)
+    has_trust = _plot_trust_dynamics(ax7, memory_results)
+    if not has_trust:
+        ax7.axis('off')  # 隐藏无数据的子图
     
-    # 子图 8: 连续错误数
-    ax8 = plt.subplot(4, 3, 8)
-    _plot_consecutive_errors(ax8, memory_results)
+    # 子图 8: 雷达图对比
+    ax8 = plt.subplot(5, 2, 8, projection='polar')
+    _plot_radar_comparison(ax8, baseline_results, memory_results)
     
-    # 子图 9: 记忆容量使用
-    ax9 = plt.subplot(4, 3, 9)
-    _plot_memory_capacity(ax9, memory_results)
+    # ========== 第五行：磁化强度与最终汇总 ==========
+    # 子图 9: 磁化强度对比
+    ax9 = plt.subplot(5, 2, 9)
+    _plot_magnetization_comparison(ax9, baseline_sim, memory_sim)
     
-    # ========== 第四行：综合分析 ==========
-    # 子图 10: 雷达图对比
-    ax10 = plt.subplot(4, 3, 10, projection='polar')
-    _plot_radar_comparison(ax10, baseline_results, memory_results)
-    
-    # 子图 11: 磁化强度对比
-    ax11 = plt.subplot(4, 3, 11)
-    _plot_magnetization_comparison(ax11, baseline_sim, memory_sim)
-    
-    # 子图 12: 最终状态汇总
-    ax12 = plt.subplot(4, 3, 12)
-    _plot_final_summary(ax12, baseline_results, memory_results)
+    # 子图 10: 最终状态汇总
+    ax10 = plt.subplot(5, 2, 10)
+    _plot_final_summary(ax10, baseline_results, memory_results)
     
     # 调整布局
     plt.tight_layout(rect=[0, 0, 1, 0.96])
@@ -215,6 +210,8 @@ def _plot_trust_dynamics(ax, memory_results):
             ax.set_ylabel('信任度', fontsize=11)
             ax.set_title('动态信任演化', fontsize=12, fontweight='bold')
             ax.grid(True, alpha=0.3)
+            return True
+    return False
 
 
 def _plot_consecutive_errors(ax, memory_results):

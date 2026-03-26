@@ -204,13 +204,26 @@ def _plot_individual_diversity(ax, results):
     
     # 使用颜色表示依赖等级
     scatter = ax.scatter(diversities, coverages, c=levels, cmap='RdYlGn_r', 
-                        alpha=0.6, s=30)
+                        alpha=0.6, s=50, edgecolors='gray', linewidth=0.5)
     
     ax.set_xlabel('多样性得分')
     ax.set_ylabel('类别覆盖率')
     ax.set_title('个体多样性特征')
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    
+    # 根据数据范围动态设置坐标轴，留出 10% 的边距
+    if len(diversities) > 1:
+        x_margin = (max(diversities) - min(diversities)) * 0.1
+        y_margin = (max(coverages) - min(coverages)) * 0.1
+        
+        # 避免边距过小导致点贴在边界上
+        x_margin = max(x_margin, 0.05)
+        y_margin = max(y_margin, 0.05)
+        
+        ax.set_xlim(min(diversities) - x_margin, max(diversities) + x_margin)
+        ax.set_ylim(min(coverages) - y_margin, max(coverages) + y_margin)
+    else:
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
     
     plt.colorbar(scatter, ax=ax, label='依赖等级')
     

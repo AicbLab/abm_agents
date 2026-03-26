@@ -62,8 +62,8 @@
 \contentsline {subsubsection}{\numberline {7.2.2}过滤气泡强度}{24}{subsubsection.7.2.2}%
 \contentsline {subsubsection}{\numberline {7.2.3}实验设计}{24}{subsubsection.7.2.3}%
 \contentsline {subsubsection}{\numberline {7.2.4}观测指标}{24}{subsubsection.7.2.4}%
-\contentsline {subsection}{\numberline {7.3}结果分析}{25}{subsection.7.3}%
-\contentsline {subsubsection}{\numberline {7.3.1}语境敏感性效应}{25}{subsubsection.7.3.1}%
+\contentsline {subsection}{\numberline {7.3}结果分析}{24}{subsection.7.3}%
+\contentsline {subsubsection}{\numberline {7.3.1}语境敏感性效应}{24}{subsubsection.7.3.1}%
 \contentsline {subsubsection}{\numberline {7.3.2}过滤气泡形成过程}{25}{subsubsection.7.3.2}%
 \contentsline {subsubsection}{\numberline {7.3.3}群体极化动力学}{26}{subsubsection.7.3.3}%
 \contentsline {subsection}{\numberline {7.4}本节小结}{26}{subsection.7.4}%
