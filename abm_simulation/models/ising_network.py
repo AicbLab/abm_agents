@@ -151,11 +151,22 @@ class IsingSocialNetwork:
         P(s_i → -s_i) = 1 / (1 + exp(ΔE / T))
         其中 ΔE = 2 * s_i * H_i
         
+        对于s_i=0（L3），允许向±1跃迁
+        
         Returns:
             翻转概率
         """
         local_field = self.calculate_local_field(i)
-        delta_E = 2 * self.spins[i] * local_field
+        current_spin = self.spins[i]
+        
+        # 对于L3（自旋=0），基于场的方向决定跃迁
+        if current_spin == 0:
+            # 场的强度决定跃迁概率
+            prob = min(1.0, abs(local_field) / self.T)
+            return prob
+        
+        # 标准Ising翻转
+        delta_E = 2 * current_spin * local_field
         
         # 避免数值溢出
         if delta_E > 10:
@@ -170,6 +181,8 @@ class IsingSocialNetwork:
         """
         执行一次Monte Carlo更新
         
+        特别处理L3（自旋=0）以维持中间状态的动态平衡
+        
         Args:
             update_type: 更新类型 ('random', 'sequential', 'checkerboard')
         
@@ -179,7 +192,6 @@ class IsingSocialNetwork:
         n_flips = 0
         
         if update_type == 'random':
-            # 随机顺序更新
             indices = np.random.permutation(self.n_agents)
         elif update_type == 'sequential':
             indices = range(self.n_agents)
@@ -187,12 +199,46 @@ class IsingSocialNetwork:
             indices = range(self.n_agents)
         
         for i in indices:
-            flip_prob = self.glauber_flip_probability(i)
+            current_spin = self.spins[i]
+            local_field = self.calculate_local_field(i)
             
-            if np.random.random() < flip_prob:
-                # 翻转自旋
-                self.spins[i] = -self.spins[i]
-                n_flips += 1
+            # 对于L3（自旋=0）
+            if current_spin == 0:
+                flip_prob = self.glauber_flip_probability(i)
+                if np.random.random() < flip_prob:
+                    field_strength = abs(local_field)
+                    # 场强决定移动概率
+                    move_prob = min(0.6, field_strength / (field_strength + 0.5))
+                    
+                    if np.random.random() < move_prob:
+                        if local_field > 0:
+                            self.spins[i] = 1  # 向L4移动
+                        else:
+                            self.spins[i] = -1  # 向L2移动
+                        n_flips += 1
+                    # 否则保持L3
+            
+            # 对于L2和L4，增加"回流"到L3的机制
+            elif current_spin in [-1, 1]:
+                # 标准Ising翻转
+                flip_prob = self.glauber_flip_probability(i)
+                if np.random.random() < flip_prob:
+                    # 有概率翻到L3（而不是直接到对面）
+                    return_to_middle_prob = 0.25  # 25%概率回到L3
+                    
+                    if np.random.random() < return_to_middle_prob:
+                        self.spins[i] = 0  # 回到L3
+                    else:
+                        self.spins[i] = -current_spin  # 标准翻转
+                    n_flips += 1
+            
+            # 对于L1和L5（极端状态）
+            else:  # current_spin in [-2, 2]
+                flip_prob = self.glauber_flip_probability(i)
+                if np.random.random() < flip_prob:
+                    # 极端状态只能向中间移动一步
+                    self.spins[i] = current_spin // 2  # -2->-1, 2->1
+                    n_flips += 1
         
         # 记录历史
         self.spin_history.append(self.spins.copy())

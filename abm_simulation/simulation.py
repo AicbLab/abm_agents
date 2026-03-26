@@ -177,8 +177,9 @@ class ABMSimulation:
     
     def _generate_external_fields(self) -> np.ndarray:
         """生成外场（个体固有倾向）"""
-        # 基于技术接受度等特质生成
-        fields = np.random.normal(0, 0.2, self.config.n_consumers)
+        # 外场保持中性，让Ising动力学和社会影响主导演化
+        # 个体差异为主，避免强偏向导致极化
+        fields = np.random.normal(0, 0.5, self.config.n_consumers)
         return fields
     
     def step(self) -> SimulationMetrics:

@@ -200,7 +200,11 @@ class ConsumerAgentDIB:
                 choice = self._rule_constrained_choice(ai_recommendation, intention)
                 self.behavior.decision_time = np.random.exponential(2)
             else:
-                choice = ai_recommendation
+                # L4-L5: 直接使用AI推荐的第一个产品
+                if hasattr(ai_recommendation, 'items') and ai_recommendation.items:
+                    choice = ai_recommendation.items[0]
+                else:
+                    choice = None
                 self.behavior.decision_time = np.random.exponential(0.5)
         else:
             self.behavior.ai_involvement_level = 0
@@ -218,16 +222,25 @@ class ConsumerAgentDIB:
         return self.behavior
     
     def _manual_override(self, recommendation, alternatives):
+        """人工审核AI推荐，70%概率接受"""
         if np.random.random() < 0.7:
+            # 从推荐中选择第一个产品
+            if hasattr(recommendation, 'items') and recommendation.items:
+                return recommendation.items[0]
             return recommendation
-        return np.random.choice(alternatives) if alternatives else recommendation
+        # 30%概率选择其他替代
+        return np.random.choice(alternatives) if alternatives else None
     
     def _rule_constrained_choice(self, recommendation, intention):
+        """规则约束下的选择，80%概率接受推荐"""
         if np.random.random() < 0.8:
+            if hasattr(recommendation, 'items') and recommendation.items:
+                return recommendation.items[0]
             return recommendation
         return None
     
     def _manual_search(self, alternatives, intention):
+        """人工搜索选择"""
         n_to_consider = min(intention.search_depth, len(alternatives))
         if n_to_consider > 0:
             considered = np.random.choice(alternatives, n_to_consider, replace=False)
@@ -276,16 +289,55 @@ class ConsumerAgentDIB:
     def update_from_ising(self, new_spin: int, social_field: float, temperature: float):
         """基于Ising动力学更新依赖等级"""
         current_spin = self.spin
+        current_level = self.dependency_level
         
-        if new_spin != current_spin:
-            flip_energy = 2 * current_spin * social_field
-            flip_prob = 1.0 / (1.0 + np.exp(flip_energy / temperature))
+        # 状态粘性：当前等级越稳定，越不容易改变
+        # L3(半委托)作为"中间地带"有较高的稳定性
+        stability = {
+            1: 0.3,  # L1: 低稳定性，容易被说服改变
+            2: 0.4,  # L2: 中等偏低
+            3: 0.7,  # L3: 高稳定性（中间状态）
+            4: 0.4,  # L4: 中等偏低
+            5: 0.3,  # L5: 低稳定性
+        }
+        current_stability = stability.get(current_level, 0.5)
+        
+        # 对于L3(自旋=0)，特殊处理以保持动态平衡
+        if current_spin == 0:
+            # L3的演化：基于社会场强度决定是否移动
+            field_strength = abs(social_field)
             
-            if np.random.random() < flip_prob:
+            # 只有当场强足够大时才考虑移动
+            if field_strength > 0.3:
+                # 考虑状态粘性后的实际移动概率
+                move_prob = field_strength * (1 - current_stability)
+                
+                if np.random.random() < move_prob:
+                    if social_field > 0:
+                        target_spin = 1  # 向L4移动
+                    else:
+                        target_spin = -1  # 向L2移动
+                    
+                    self.spin = target_spin
+                    new_level = self._spin_to_level(target_spin)
+                    if new_level != current_level:
+                        self.dependency_level = new_level
+                        self.dependency_trajectory.append(new_level)
+            # 否则保持L3（不操作）
+        
+        elif new_spin != current_spin:
+            # 标准Ising翻转（适用于L1,L2,L4,L5）
+            flip_energy = 2 * current_spin * social_field
+            base_flip_prob = 1.0 / (1.0 + np.exp(flip_energy / temperature))
+            
+            # 应用状态粘性调整
+            adjusted_flip_prob = base_flip_prob * (1 - current_stability)
+            
+            if np.random.random() < adjusted_flip_prob:
                 self.spin = new_spin
                 new_level = self._spin_to_level(new_spin)
                 
-                if new_level != self.dependency_level:
+                if new_level != current_level:
                     self.dependency_level = new_level
                     self.dependency_trajectory.append(new_level)
     
