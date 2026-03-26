@@ -10,8 +10,8 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.insert(0, project_root)
 
 from simulation import ABMSimulation, SimulationConfig
-from experiments.experiment2_memory.simulation_memory import Experiment2Simulation
-from experiments.experiment2_memory.visualization_comparison import create_comparison_visualization
+from experiments.exp2_consumer_memory.simulation_memory import Experiment2Simulation
+from experiments.exp2_consumer_memory.visualization_comparison import create_comparison_visualization
 import numpy as np
 
 

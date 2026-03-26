@@ -12,7 +12,7 @@ import numpy as np
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 
-from simulation import ABMSimulation, SimulationConfig, MetricsCollector
+from simulation import ABMSimulation, SimulationConfig
 from agents.consumer_dib import ConsumerAgentDIB, ConsumerTraits
 from environment.market import MarketEnvironment, Product
 from experiments.exp3_ai_evolution.ai_evolution import EvolvingAIPopulation, AILearningMode

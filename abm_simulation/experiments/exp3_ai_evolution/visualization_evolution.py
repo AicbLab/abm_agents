@@ -49,10 +49,7 @@ def visualize_evolution_results(sim, output_dir: str = "experiments/exp3_ai_evol
     plt.savefig(f'{output_dir}/evolution_analysis.png', dpi=150, bbox_inches='tight')
     plt.close()
     
-    print(f"  ✓ 进化分析图已保存: {output_dir}/evolution_analysis.png")
-    
-    # 创建对比图（与基线）
-    _create_comparison_plot(sim, output_dir)
+    print(f"  ✓ 进化分析图已保存：{output_dir}/evolution_analysis.png")
 
 
 def _plot_ai_evolution_trajectory(ax, sim):
@@ -160,10 +157,10 @@ def _plot_capability_heatmap(ax, sim):
     capability_matrix = np.zeros((n_agents, len(capabilities)))
     
     for i, agent in enumerate(agents):
-        capability_matrix[i, 0] = agent.recommendation_accuracy
-        capability_matrix[i, 1] = agent.understanding_depth
-        capability_matrix[i, 2] = agent.execution_reliability
-        capability_matrix[i, 3] = agent.personalization_ability
+        capability_matrix[i, 0] = getattr(agent, 'recommendation_accuracy', 0.5)
+        capability_matrix[i, 1] = getattr(agent, 'understanding_depth', 0.5)
+        capability_matrix[i, 2] = getattr(agent, 'execution_reliability', 0.5)
+        capability_matrix[i, 3] = getattr(agent, 'personalization_ability', 0.5)
     
     im = ax.imshow(capability_matrix, cmap='RdYlGn', aspect='auto', vmin=0, vmax=1)
     

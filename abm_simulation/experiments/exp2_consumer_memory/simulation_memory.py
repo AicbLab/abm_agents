@@ -12,7 +12,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.insert(0, project_root)
 
 from simulation import ABMSimulation, SimulationConfig, SimulationMetrics
-from experiments.experiment2_memory.consumer_with_memory import ConsumerAgentWithMemory
+from experiments.exp2_consumer_memory.consumer_with_memory import ConsumerAgentWithMemory
 from agents.consumer_dib import ConsumerTraits
 from models.ising_network import AdaptiveIsingNetwork
 from agents.ai_agent import AIAgentPopulation
