@@ -1,4 +1,4 @@
-# ABM 消费决策代理模拟系统
+﻿# ABM 消费决策代理模拟系统
 
 ## 📋 项目简介
 
@@ -119,8 +119,7 @@ ABM 消费决策代理/
 │   ├── results/                 # 结果汇总
 │   │   └── all_experiments_figures/  # 统一图片目录
 │   └── visualization/           # 可视化工具
-├── experiments/                 # 实验结果 (旧版兼容)
-├── results/                     # 统一结果目录
+├──├── results/                     # 统一结果目录
 │   └── all_experiments_figures/ # 18 张汇总图
 └── README.md                    # 本文件
 ```
