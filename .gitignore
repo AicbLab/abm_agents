@@ -43,10 +43,6 @@ matplotlibrc
 .DS_Store
 Thumbs.db
 
-# 模拟数据 (不要上传)
-data_servey/
-**/data_servey/**
-
 # 大型数据文件
 *.csv
 *.xlsx
