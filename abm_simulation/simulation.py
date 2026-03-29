@@ -1,4 +1,4 @@
-"""
+﻿"""
 ABM仿真主引擎
 整合Ising-D-I-B模型的完整仿真系统
 """
@@ -50,6 +50,77 @@ class SimulationConfig:
     coupling_trend: float = 0.001  # 每步社会耦合增长
     shock_probability: float = 0.01  # 外部冲击概率
 
+    
+    @staticmethod
+    def get_user_input_distribution() -> Dict[int, float]:
+        """从用户输入获取初始人群比例分布"""
+        print("\n" + "="*60)
+        print("请输入初始人群依赖等级分布 (L1-L5)")
+        print("="*60)
+        print("\n说明:")
+        print("  L1: 极低 AI 依赖群体")
+        print("  L2: 低 AI 依赖群体")
+        print("  L3: 中等 AI 依赖群体")
+        print("  L4: 高 AI 依赖群体")
+        print("  L5: 极高 AI 依赖群体")
+        print("\n要求:")
+        print("  1. 每个等级的比例用小数表示 (如 0.2 表示 20%)")
+        print("  2. 所有比例之和必须等于 1.0")
+        print("  3. 直接回车使用默认值")
+        print("="*60)
+        
+        default_dist = {1: 0.10, 2: 0.25, 3: 0.30, 4: 0.25, 5: 0.10}
+        
+        try:
+            print("\n默认分布:")
+            for level, ratio in default_dist.items():
+                print(f"  L{level}: {ratio*100:.0f}%")
+            
+            print("\n是否使用默认分布？(Y/n): ", end='')
+            use_default = input().strip().lower()
+            
+            if use_default == '' or use_default == 'y':
+                print("\n 使用默认分布")
+                return default_dist
+            
+            print("\n请依次输入各等级比例:")
+            user_dist = {}
+            for level in range(1, 6):
+                prompt = f"  L{level} 比例 (默认{default_dist[level]*100:.0f}%): "
+                user_input = input(prompt).strip()
+                
+                if user_input == '':
+                    user_dist[level] = default_dist[level]
+                else:
+                    user_dist[level] = float(user_input)
+            
+            total = sum(user_dist.values())
+            print(f"\n输入汇总：总和 = {total:.4f}")
+            
+            if abs(total - 1.0) > 0.001:
+                print(f"警告：比例之和 ({total:.4f}) 不等于 1.0")
+                print("是否自动归一化？(Y/n): ", end='')
+                normalize = input().strip().lower()
+                
+                if normalize == '' or normalize == 'y':
+                    user_dist = {k: v/total for k, v in user_dist.items()}
+                    print(f"已归一化到总和为 1.0")
+                else:
+                    print("请重新调整比例后再次运行程序")
+                    return default_dist
+            
+            print("\n最终使用的分布:")
+            for level, ratio in sorted(user_dist.items()):
+                print(f"  L{level}: {ratio*100:.2f}%")
+            
+            return user_dist
+            
+        except KeyboardInterrupt:
+            print("\n\n用户中断，使用默认分布")
+            return default_dist
+        except Exception as e:
+            print(f"\n输入错误：{e}，使用默认分布")
+            return default_dist
 
 @dataclass
 class SimulationMetrics:
@@ -83,9 +154,23 @@ class ABMSimulation:
     整合Ising社交网络、D-I-B消费者、AI代理和市场环境
     """
     
-    def __init__(self, config: Optional[SimulationConfig] = None):
-        """初始化仿真"""
-        self.config = config or SimulationConfig()
+    def __init__(self, config: Optional[SimulationConfig] = None, interactive: bool = False):
+        """
+        初始化仿真
+        
+        Args:
+            config: 仿真配置对象
+            interactive: 是否启用交互式配置（手动输入初始分布）
+        """
+        if config is None:
+            if interactive:
+                # 交互式获取用户输入
+                dist = SimulationConfig.get_user_input_distribution()
+                self.config = SimulationConfig(initial_level_distribution=dist)
+            else:
+                self.config = SimulationConfig()
+        else:
+            self.config = config
         
         # 初始化组件
         self.network: Optional[AdaptiveIsingNetwork] = None
