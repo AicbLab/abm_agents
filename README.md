@@ -303,8 +303,8 @@ python verify_figures.py
 
 ## 👥 团队信息
 
-**项目负责人**: [您的姓名]  
-**所属机构**: [您的机构]  
+**项目负责人**: [M.Y]  
+**所属机构**: [THU]  
 **研究方向**: AI 消费决策、多智能体仿真、计算社会科学  
 
 ---
@@ -312,8 +312,8 @@ python verify_figures.py
 ## 📧 联系方式
 
 如有问题或合作意向，请通过以下方式联系:
-- Email: [您的邮箱]
-- GitHub: [项目地址]
+- Email: [yinmj@wxu.edu.cn]
+- GitHub: [https://github.com/AicbLab/abm_agents]
 
 ---
 
