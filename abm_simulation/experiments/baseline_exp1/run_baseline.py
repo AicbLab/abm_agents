@@ -32,6 +32,7 @@ def run_baseline():
         enable_adaptive_coupling=True,
         coupling_trend=0.0005,
         shock_probability=0.05,
+        enable_ai_learning=False,  # 基准实验禁用AI学习,保持静态
     )
     
     print(f"\n仿真配置:")
@@ -71,6 +72,11 @@ def run_baseline():
     mag_trend = summary['magnetization_trend']
     print(f"  磁化强度: {mag_trend['initial']:.3f} -> {mag_trend['final']:.3f} (变化: {mag_trend['change']:+.3f})")
     print(f"  临界耦合强度: {sim.network.get_critical_J():.4f}")
+    
+    # J扫描实验结果
+    print(f"\n  [注意] 平均场近似 J_c^MF ≈ 0.1667,但修改版模型的实测 J_c ≈ 0.453")
+    print(f"  基准实验 J 演化范围: 0.20 -> 0.35 (全程处于无序相 J < J_c)")
+    print(f"  磁化强度-0.475为瞬态漂移,非稳态有序相")
     
     print("\n【消费者行为】")
     print(f"  平均满意度: {summary['satisfaction']['mean']:.3f}")

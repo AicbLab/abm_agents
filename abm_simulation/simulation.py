@@ -49,6 +49,9 @@ class SimulationConfig:
     enable_adaptive_coupling: bool = True
     coupling_trend: float = 0.001  # 每步社会耦合增长
     shock_probability: float = 0.01  # 外部冲击概率
+    
+    # AI学习控制(基准实验应禁用)
+    enable_ai_learning: bool = True  # 是否允许AI从反馈中学习
 
     
     @staticmethod
@@ -226,8 +229,11 @@ class ABMSimulation:
             )
             self.consumers.append(consumer)
         
-        # 5. 创建AI代理群体
-        self.ai_population = AIAgentPopulation(n_agents=self.config.n_ai_agents)
+        # 5. 创建AI代理群体(根据配置决定是否启用学习)
+        self.ai_population = AIAgentPopulation(
+            n_agents=self.config.n_ai_agents,
+            enable_learning=self.config.enable_ai_learning
+        )
         
         # 6. 创建市场环境
         self.market = MarketEnvironment(
@@ -287,9 +293,11 @@ class ABMSimulation:
         # 1. Ising网络更新（社会影响传播）
         self._update_ising_network()
         
-        # 2. 消费者决策循环
-        for i, consumer in enumerate(self.consumers):
-            self._consumer_decision_cycle(consumer, i)
+        # 2. 消费者决策循环（随机打乱顺序避免位置偏差）
+        consumer_indices = np.random.permutation(len(self.consumers))
+        for idx in consumer_indices:
+            consumer = self.consumers[idx]
+            self._consumer_decision_cycle(consumer, idx)
         
         # 3. 更新环境
         self.context.advance_time(hours=0.5)

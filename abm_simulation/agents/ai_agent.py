@@ -56,7 +56,8 @@ class AIAgent:
     def __init__(self, 
                  agent_id: int,
                  capacity_level: str = 'medium',
-                 learning_rate: float = 0.1):
+                 learning_rate: float = 0.1,
+                 enable_learning: bool = True):
         """
         初始化AI代理
         
@@ -64,10 +65,12 @@ class AIAgent:
             agent_id: 代理标识
             capacity_level: 能力等级 ('low', 'medium', 'high')
             learning_rate: 学习率
+            enable_learning: 是否启用学习(基准实验应设为False)
         """
         self.id = agent_id
         self.capacity_level = capacity_level
         self.learning_rate = learning_rate
+        self.enable_learning = enable_learning  # 控制AI是否从反馈中学习
         
         # 能力属性（根据等级初始化）
         self._init_capacity()
@@ -225,8 +228,9 @@ class AIAgent:
         base_error = sum(self.base_error_rates.values()) / len(self.base_error_rates)
         
         # 依赖等级影响：L4-L5可能因过度信任而增加某些错误
+        # 将魔数0.05改为可配置参数
         if dependency_level >= 4:
-            autonomy_error_boost = 0.05
+            autonomy_error_boost = getattr(self, 'autonomy_error_boost', 0.05)
         else:
             autonomy_error_boost = 0.0
         
@@ -251,15 +255,42 @@ class AIAgent:
         return np.random.choice(error_types, p=probabilities)
     
     def _apply_error_effect(self, items: List[Any], error_type: AIErrorType) -> List[Any]:
-        """应用错误对推荐结果的影响"""
-        if error_type == AIErrorType.MISUNDERSTANDING:
-            # 完全错误推荐
-            return items[::-1] if len(items) > 1 else items
-        elif error_type == AIErrorType.FILTER_BUBBLE:
-            # 过滤气泡：减少多样性
-            return [items[0]] * len(items) if items else items
-        else:
+        """应用错误对推荐结果的影响，每种错误产生可区分的下游后果"""
+        if not items:
             return items
+            
+        if error_type == AIErrorType.MISUNDERSTANDING:
+            # 误解需求：推荐完全错误的类别（反转列表）
+            return items[::-1] if len(items) > 1 else items
+            
+        elif error_type == AIErrorType.OUTDATED_INFO:
+            # 信息过时：推荐质量下降（模拟过期信息导致的不准确）
+            # 通过在返回项中附加标记，让下游可以检测质量衰减
+            for item in items:
+                if hasattr(item, 'quality'):
+                    item.quality = max(0.1, item.quality * 0.7)  # 质量衰减30%
+            return items
+            
+        elif error_type == AIErrorType.PREFERENCE_DRIFT:
+            # 偏好漂移：推荐与历史偏好逐渐偏离的项
+            # 模拟AI未捕捉到用户偏好变化
+            return items[1:] + items[:1] if len(items) > 1 else items  # 循环移位
+            
+        elif error_type == AIErrorType.CONTEXT_BLINDNESS:
+            # 上下文盲区：忽略关键上下文（如预算、时间压力）
+            # 推荐高价位或耗时选项
+            return sorted(items, key=lambda x: getattr(x, 'price', 0) if hasattr(x, 'price') else 0, reverse=True)
+            
+        elif error_type == AIErrorType.EXECUTION_ERROR:
+            # 执行错误：推荐列表部分丢失
+            n_keep = max(1, len(items) // 2)
+            return items[:n_keep]
+            
+        elif error_type == AIErrorType.FILTER_BUBBLE:
+            # 过滤气泡：减少多样性，推荐同质化项
+            return [items[0]] * len(items) if items else items
+            
+        return items
     
     def execute_order(self, recommendation: AIRecommendation, consumer_level: int) -> Dict:
         """
@@ -302,6 +333,10 @@ class AIAgent:
             consumer_id: 消费者ID
             interaction: 交互记录
         """
+        # 基准实验中AI不学习,保持静态
+        if not self.enable_learning:
+            return
+            
         profile = self.get_or_create_profile(consumer_id)
         profile.update(interaction)
         
@@ -346,20 +381,22 @@ class AIAgent:
 class AIAgentPopulation:
     """AI代理群体"""
     
-    def __init__(self, n_agents: int = 2):
+    def __init__(self, n_agents: int = 2, enable_learning: bool = True):
         """
         初始化AI代理群体
         
         Args:
             n_agents: AI代理数量
+            enable_learning: 是否启用学习(基准实验应设为False)
         """
         self.agents: List[AIAgent] = []
+        self.enable_learning = enable_learning
         
         # 创建不同能力等级的AI
         capacities = ['low', 'medium', 'high']
         for i in range(n_agents):
             capacity = capacities[i % len(capacities)]
-            agent = AIAgent(agent_id=i, capacity_level=capacity)
+            agent = AIAgent(agent_id=i, capacity_level=capacity, enable_learning=enable_learning)
             self.agents.append(agent)
     
     def select_agent_for_consumer(self, consumer_id: int, 
