@@ -11,11 +11,14 @@ import sys
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
 from visualization.chinese_font import setup_chinese_font
+from config import RESULTS
 setup_chinese_font()
 
 
-def visualize_systemic_risk_results(main_result, stress_results, risk_model, output_dir: str):
+def visualize_systemic_risk_results(main_result, stress_results, risk_model, output_dir: str = None):
     """可视化系统性风险结果"""
+    if output_dir is None:
+        output_dir = RESULTS["exp10"]
     os.makedirs(output_dir, exist_ok=True)
     
     fig = plt.figure(figsize=(16, 10))

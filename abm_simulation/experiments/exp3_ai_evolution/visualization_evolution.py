@@ -11,10 +11,13 @@ import sys
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
 from visualization.chinese_font import setup_chinese_font
+from config import RESULTS
 setup_chinese_font()
 
 
-def visualize_evolution_results(sim, output_dir: str = "experiments/exp3_ai_evolution/results"):
+def visualize_evolution_results(sim, output_dir: str = None):
+    if output_dir is None:
+        output_dir = RESULTS["exp3"]
     """
     可视化 AI 进化实验结果
     

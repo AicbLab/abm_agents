@@ -6,6 +6,7 @@ sys.path.insert(0, project_root)
 import numpy as np
 from typing import Dict
 from simulation import ABMSimulation, SimulationConfig
+from config import RESULTS
 
 class ContextSensitivitySimulation(ABMSimulation):
     def __init__(self, config: SimulationConfig):
@@ -21,7 +22,9 @@ class ContextSensitivitySimulation(ABMSimulation):
         return results
 
 
-def visualize_context_results(results, output_dir="experiments/exp8_context_sensitivity/results"):
+def visualize_context_results(results, output_dir=None):
+    if output_dir is None:
+        output_dir = RESULTS["exp8"]
     """Generate visualization for Experiment 8"""
     import matplotlib.pyplot as plt
     from pathlib import Path

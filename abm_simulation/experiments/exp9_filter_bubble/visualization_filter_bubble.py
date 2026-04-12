@@ -11,11 +11,14 @@ import sys
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
 from visualization.chinese_font import setup_chinese_font
+from config import RESULTS
 setup_chinese_font()
 
 
-def visualize_filter_bubble_results(analyzer, results, output_dir: str):
+def visualize_filter_bubble_results(analyzer, results, output_dir: str = None):
     """可视化过滤气泡结果"""
+    if output_dir is None:
+        output_dir = RESULTS["exp9"]
     os.makedirs(output_dir, exist_ok=True)
     
     fig = plt.figure(figsize=(16, 10))

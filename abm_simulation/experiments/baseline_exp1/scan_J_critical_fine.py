@@ -12,6 +12,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.insert(0, project_root)
 
 from models.ising_network import AdaptiveIsingNetwork
+from config import RESULTS
 
 
 def fine_scan_J_critical():
@@ -28,7 +29,8 @@ def fine_scan_J_critical():
     print("="*70)
     
     # 扫描参数
-    J_values = np.arange(0.40, 0.51, 0.01)
+    # 用 linspace 代替 arange，避免浮点累积导致最后一个点（0.50）被漏掉
+    J_values = np.linspace(0.40, 0.50, 11)
     n_agents = 500
     temperature = 2.0
     n_runs = 20  # 20次独立运行
@@ -218,7 +220,7 @@ def plot_fine_scan(data):
         
         plt.tight_layout()
         
-        output_dir = "experiments/baseline_exp1/results"
+        output_dir = RESULTS["baseline"]
         os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, "J_scan_fine_critical.png")
         plt.savefig(output_path, dpi=300, bbox_inches='tight')

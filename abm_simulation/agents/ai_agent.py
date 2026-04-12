@@ -158,14 +158,14 @@ class AIAgent:
         Returns:
             AI推荐结果
         """
-        self.total_recommendations += 1
-        
-        # 获取消费者画像
-        profile = self.get_or_create_profile(consumer_id)
-        
         # 根据依赖等级调整服务深度
         if dependency_level == 1:
-            return None  # L1用户不使用AI
+            return None  # L1用户不使用AI；不计入推荐统计
+
+        self.total_recommendations += 1
+
+        # 获取消费者画像
+        profile = self.get_or_create_profile(consumer_id)
         
         # 计算个性化提升
         personalization_boost = profile.personalization_level * 0.2

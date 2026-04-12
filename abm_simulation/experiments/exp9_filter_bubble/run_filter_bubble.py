@@ -10,6 +10,7 @@ sys.path.insert(0, project_root)
 
 from experiments.exp9_filter_bubble.filter_bubble import FilterBubbleAnalyzer, DiversityIntervention
 from experiments.exp9_filter_bubble.visualization_filter_bubble import visualize_filter_bubble_results
+from config import RESULTS
 
 
 def run_experiment9():
@@ -63,8 +64,7 @@ def run_experiment9():
     # 生成可视化
     print("\n" + "="*70)
     print("生成可视化...")
-    visualize_filter_bubble_results(analyzer, results, 
-                                   output_dir="experiments/exp9_filter_bubble/results")
+    visualize_filter_bubble_results(analyzer, results, output_dir=RESULTS["exp9"])
     
     print("\n" + "="*70)
     print("实验9完成!")

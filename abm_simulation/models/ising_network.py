@@ -237,7 +237,8 @@ class IsingSocialNetwork:
                 flip_prob = self.glauber_flip_probability(i)
                 if np.random.random() < flip_prob:
                     # 极端状态只能向中间移动一步
-                    self.spins[i] = current_spin // 2  # -2->-1, 2->1
+                    # 使用显式符号算法，避免整除在负数上的下取整歧义
+                    self.spins[i] = int(np.sign(current_spin)) * (abs(current_spin) - 1)  # -2->-1, 2->1
                     n_flips += 1
         
         # 记录历史

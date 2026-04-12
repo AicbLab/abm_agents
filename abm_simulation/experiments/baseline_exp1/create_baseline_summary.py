@@ -7,14 +7,19 @@ import matplotlib.pyplot as plt
 import sys
 import os
 
-# 添加项目根目录并导入中文字体配置
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 添加项目根目录（abm_simulation/）到路径
+# __file__ = .../abm_simulation/experiments/baseline_exp1/create_baseline_summary.py
+# 需要三层 dirname 才能到达 abm_simulation/
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
 from visualization.chinese_font import setup_chinese_font
+from config import RESULTS
 setup_chinese_font()
 
 
-def create_baseline_summary(sim, results, output_dir: str = "results/all_figures"):
+def create_baseline_summary(sim, results, output_dir: str = None):
+    if output_dir is None:
+        output_dir = RESULTS["baseline"]
     """
     创建基线实验的综合总结图
     
@@ -64,8 +69,8 @@ def create_baseline_summary(sim, results, output_dir: str = "results/all_figures
     ax8 = plt.subplot(3, 3, 8)
     _plot_ai_usage_and_errors(ax8, sim)
     
-    # 子图 9: 网络拓扑特征
-    ax9 = plt.subplot(3, 3, 9)
+    # 子图 9: 网络拓扑特征（雷达图需要 polar 投影）
+    ax9 = fig.add_subplot(3, 3, 9, projection='polar')
     _plot_network_topology(ax9, sim)
     
     # 调整布局

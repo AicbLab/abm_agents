@@ -316,12 +316,11 @@ class ABMSimulation:
         # Monte Carlo更新
         self.network.monte_carlo_step(update_type='random')
         
-        # 同步到消费者
+        # 无条件将网络自旋同步到消费者，确保两者状态一致
         for i, consumer in enumerate(self.consumers):
             new_spin = self.network.spins[i]
-            if new_spin != consumer.spin:
-                social_field = self.network.calculate_local_field(i)
-                consumer.update_from_ising(new_spin, social_field, self.network.T)
+            social_field = self.network.calculate_local_field(i)
+            consumer.update_from_ising(new_spin, social_field, self.network.T)
     
     def _consumer_decision_cycle(self, consumer: ConsumerAgentDIB, agent_idx: int):
         """

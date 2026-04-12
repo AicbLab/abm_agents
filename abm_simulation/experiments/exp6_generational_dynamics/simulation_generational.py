@@ -6,6 +6,7 @@ sys.path.insert(0, project_root)
 import numpy as np
 from typing import Dict
 from simulation import ABMSimulation, SimulationConfig
+from config import RESULTS
 
 class GenerationalDynamicsSimulation(ABMSimulation):
     def __init__(self, config: SimulationConfig):
@@ -24,7 +25,9 @@ class GenerationalDynamicsSimulation(ABMSimulation):
         return results
 
 
-def visualize_generational_results(results, output_dir="experiments/exp6_generational_dynamics/results"):
+def visualize_generational_results(results, output_dir=None):
+    if output_dir is None:
+        output_dir = RESULTS["exp6"]
     """Generate visualization for Experiment 6"""
     import matplotlib.pyplot as plt
     from pathlib import Path
