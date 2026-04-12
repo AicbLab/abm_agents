@@ -7,6 +7,7 @@ sys.path.insert(0, project_root)
 from simulation import SimulationConfig
 from experiments.exp5_network_structure.simulation_network import NetworkStructureSimulation
 from experiments.exp5_network_structure.visualization_network import visualize_network_results
+from config import RESULTS
 
 def run_experiment5():
     print("="*70)
@@ -32,7 +33,7 @@ def run_experiment5():
     # Generate visualization
     print(f"\nGenerating visualization...")
     results = {'test': result}
-    output_file = visualize_network_results(results)
+    output_file = visualize_network_results(results, output_dir=RESULTS["exp5"])
     
     print(f"\n{'='*70}")
     print(f"Experiment 5 completed!")

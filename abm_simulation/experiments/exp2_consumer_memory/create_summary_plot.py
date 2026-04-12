@@ -7,15 +7,19 @@ import matplotlib.pyplot as plt
 import sys
 import os
 
-# 添加项目根目录并导入中文字体配置
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 添加项目根目录（abm_simulation/）到路径
+# __file__ = .../abm_simulation/experiments/exp2_consumer_memory/create_summary_plot.py
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
 from visualization.chinese_font import setup_chinese_font
+from config import RESULTS
 setup_chinese_font()
 
 
-def create_experiment2_summary(baseline_sim, memory_sim, baseline_results, memory_results, 
-                                output_dir: str = "results/all_figures"):
+def create_experiment2_summary(baseline_sim, memory_sim, baseline_results, memory_results,
+                                output_dir: str = None):
+    if output_dir is None:
+        output_dir = RESULTS["exp2"]
     """
     创建实验 2 的综合总结图
     

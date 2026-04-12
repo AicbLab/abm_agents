@@ -11,7 +11,8 @@ sys.path.insert(0, project_root)
 from simulation import SimulationConfig
 from experiments.exp4_information_intervention.simulation_intervention import InterventionSimulation
 from experiments.exp4_information_intervention.intervention import InterventionType, InterventionEvent
-from experiments.exp4_information_intervention.visualization_intervention import visualize_intervention_results
+from experiments.exp4_information_intervention.visualization_intervention import visualize_all_policy_results
+from config import RESULTS
 
 
 def run_experiment4_policy(policy_type='balanced'):
@@ -89,15 +90,11 @@ def run_experiment4():
         sat = summary.get('satisfaction', {}).get('mean', 0)
         print(f"{policy:<20} {l5_pct:<10.1f} {l1_pct:<10.1f} {sat:<10.3f}")
     
-    # 生成可视化
+    # 生成综合图（三种政策合并为一张图）
     print("\n" + "="*70)
     print("生成可视化...")
-    
-    for policy, (sim, _) in results.items():
-        visualize_intervention_results(
-            sim, 
-            output_dir=f"experiments/exp4_information_intervention/results/{policy}"
-        )
+    policy_sims = {policy: sim for policy, (sim, _) in results.items()}
+    visualize_all_policy_results(policy_sims, output_dir=RESULTS["exp4"])
     
     print("\n" + "="*70)
     print("实验4完成!")

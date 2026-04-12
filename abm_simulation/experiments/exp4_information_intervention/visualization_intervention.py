@@ -11,11 +11,61 @@ import sys
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
 from visualization.chinese_font import setup_chinese_font
+from config import RESULTS
 setup_chinese_font()
 
 
-def visualize_intervention_results(sim, output_dir: str):
-    """可视化干预实验结果"""
+def visualize_all_policy_results(policy_sims: dict, output_dir: str = None):
+    """
+    将三种政策的结果合并为一张图（3列×3行 = 9子图）
+    policy_sims: {'balanced': sim, 'promote_ai': sim, 'protect_consumers': sim}
+    """
+    if output_dir is None:
+        output_dir = RESULTS["exp4"]
+    os.makedirs(output_dir, exist_ok=True)
+
+    policies = list(policy_sims.keys())
+    policy_labels = {
+        'balanced': '均衡政策',
+        'promote_ai': '促进AI政策',
+        'protect_consumers': '保护消费者政策',
+    }
+    n_cols = len(policies)
+
+    fig, axes = plt.subplots(3, n_cols, figsize=(7 * n_cols, 18))
+    fig.suptitle('实验 4: 信息干预政策对比', fontsize=18, fontweight='bold', y=0.99)
+
+    for col, policy in enumerate(policies):
+        sim = policy_sims[policy]
+        label = policy_labels.get(policy, policy)
+
+        # 行1：干预时间线
+        axes[0, col].set_title(label, fontsize=14, fontweight='bold', pad=8)
+        _plot_intervention_timeline(axes[0, col], sim)
+
+        # 行2：依赖等级演化
+        _plot_level_evolution_with_interventions(axes[1, col], sim)
+
+        # 行3：干预前后对比
+        _plot_before_after_comparison(axes[2, col], sim)
+
+    # 统一行标签（左侧第一列的 y 轴标题已在子函数里设好，这里加行说明）
+    row_titles = ['干预时间线', '依赖等级演化', '干预前后高依赖变化']
+    for row, title in enumerate(row_titles):
+        axes[row, 0].set_ylabel(f'{title}\n{axes[row, 0].get_ylabel()}', fontsize=11)
+
+    plt.tight_layout(rect=[0, 0, 1, 0.98])
+    output_path = os.path.join(output_dir, 'intervention_all_policies.png')
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"  [OK] 实验4综合图已保存：{output_path}")
+    return output_path
+
+
+def visualize_intervention_results(sim, output_dir: str = None):
+    """可视化单政策干预实验结果（内部用，对外推荐 visualize_all_policy_results）"""
+    if output_dir is None:
+        output_dir = RESULTS["exp4"]
     os.makedirs(output_dir, exist_ok=True)
     
     # 创建简化版综合可视化（只展示有数据的子图）

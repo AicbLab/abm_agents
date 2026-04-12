@@ -11,7 +11,7 @@ sys.path.insert(0, project_root)
 
 from simulation import ABMSimulation, SimulationConfig
 from experiments.exp2_consumer_memory.simulation_memory import Experiment2Simulation
-from experiments.exp2_consumer_memory.visualization_comparison import create_comparison_visualization
+from config import RESULTS
 import numpy as np
 
 
@@ -154,16 +154,7 @@ def main():
     # 对比分析
     compare_results(baseline_results, experiment2_results)
     
-    # 生成可视化
-    print("\n" + "="*70)
-    print("生成对比可视化...")
-    print("="*70)
-    create_comparison_visualization(
-        baseline_sim, memory_sim,
-        baseline_results, experiment2_results
-    )
-    
-    # 生成综合图
+    # 生成综合图（唯一输出，5×2 子图汇总）
     print("\n" + "="*70)
     print("生成实验 2 综合图...")
     print("="*70)
@@ -171,7 +162,7 @@ def main():
     create_experiment2_summary(
         baseline_sim, memory_sim,
         baseline_results, experiment2_results,
-        output_dir="results/all_figures"
+        output_dir=RESULTS["exp2"]
     )
     
     print("\n" + "="*70)

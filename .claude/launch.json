@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ABM Frontend Server",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["abm_simulation/frontend/start_server.py"],
+      "port": 8080
+    }
+  ]
+}

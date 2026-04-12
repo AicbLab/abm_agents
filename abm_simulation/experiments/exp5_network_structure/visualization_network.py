@@ -1,9 +1,20 @@
 ﻿"""Experiment 5 Visualization: Network Structure Comparison"""
 import matplotlib.pyplot as plt
 import numpy as np
+import os, sys
 from pathlib import Path
 
-def visualize_network_results(results, output_dir="experiments/exp5_network_structure/results"):
+# 添加 abm_simulation/ 到路径
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_ROOT = os.path.abspath(os.path.join(_HERE, '..', '..', '..'))
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
+from config import RESULTS
+
+
+def visualize_network_results(results, output_dir=None):
+    if output_dir is None:
+        output_dir = RESULTS["exp5"]
     """Generate visualization for Experiment 5"""
     
     # Create output directory

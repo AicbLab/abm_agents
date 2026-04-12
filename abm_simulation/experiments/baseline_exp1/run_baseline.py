@@ -11,7 +11,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.insert(0, project_root)
 
 from simulation import ABMSimulation, SimulationConfig
-from visualization.plots import quick_visualize
+from config import RESULTS
 
 
 def run_baseline():
@@ -88,16 +88,12 @@ def run_baseline():
     print(f"  平均聚类系数: {net_metrics.get('avg_clustering', 0):.3f}")
     print(f"  平均路径长度: {net_metrics.get('avg_path_length', 0):.2f}")
     
-    # 生成可视化
-    print("\n" + "="*70)
-    viz = quick_visualize(sim, output_dir="experiments/baseline_exp1/results")
-    
-    # 生成综合图
+    # 生成综合图（唯一输出，3×3 子图汇总）
     print("\n" + "="*70)
     print("生成基线实验综合图...")
     print("="*70)
     from experiments.baseline_exp1.create_baseline_summary import create_baseline_summary
-    create_baseline_summary(sim, summary, output_dir="results/all_figures")
+    create_baseline_summary(sim, summary, output_dir=RESULTS["baseline"])
     
     print("\n" + "="*70)
     print("基线实验完成!")

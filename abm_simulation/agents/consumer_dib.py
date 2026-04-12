@@ -250,7 +250,8 @@ class ConsumerAgentDIB:
     def evaluate_outcome(self, outcome: Dict):
         """评估行为结果"""
         expected_quality = self.intention.quality_threshold
-        actual_quality = outcome.get('quality', expected_quality)
+        # market.simulate_transaction 返回的键是 'actual_quality'，不是 'quality'
+        actual_quality = outcome.get('actual_quality', outcome.get('quality', expected_quality))
         
         quality_gap = actual_quality - expected_quality
         effort = self.behavior.decision_time / 10.0
@@ -263,7 +264,8 @@ class ConsumerAgentDIB:
         self.behavior.regret = max(0, -quality_gap) * self.traits.risk_aversion
         self.behavior.perceived_effort = effort
         self.behavior.actual_quality = actual_quality
-        self.behavior.actual_cost = outcome.get('cost', 0)
+        # market.simulate_transaction 返回的键是 'price'，不是 'cost'
+        self.behavior.actual_cost = outcome.get('cost', outcome.get('price', 0))
         self.behavior.error_occurred = outcome.get('error', False)
         self.behavior.error_type = outcome.get('error_type', None)
         
@@ -287,59 +289,21 @@ class ConsumerAgentDIB:
         self.experiences.append(exp)
     
     def update_from_ising(self, new_spin: int, social_field: float, temperature: float):
-        """基于Ising动力学更新依赖等级"""
-        current_spin = self.spin
+        """将网络自旋状态同步到消费者（无条件接受）
+
+        Ising热力学翻转概率已在 monte_carlo_step() 中决定。
+        此处只做状态同步，不再进行第二次概率检验——否则
+        network.spins[i] 与 consumer.spin 会永久脱钩，
+        导致两套状态各自演化（历史上曾引发 -0.475 异常涨落）。
+        """
         current_level = self.dependency_level
-        
-        # 状态粘性：当前等级越稳定，越不容易改变
-        # L3(半委托)作为"中间地带"有较高的稳定性
-        stability = {
-            1: 0.3,  # L1: 低稳定性，容易被说服改变
-            2: 0.4,  # L2: 中等偏低
-            3: 0.7,  # L3: 高稳定性（中间状态）
-            4: 0.4,  # L4: 中等偏低
-            5: 0.3,  # L5: 低稳定性
-        }
-        current_stability = stability.get(current_level, 0.5)
-        
-        # 对于L3(自旋=0)，特殊处理以保持动态平衡
-        if current_spin == 0:
-            # L3的演化：基于社会场强度决定是否移动
-            field_strength = abs(social_field)
-            
-            # 只有当场强足够大时才考虑移动
-            if field_strength > 0.3:
-                # 考虑状态粘性后的实际移动概率
-                move_prob = field_strength * (1 - current_stability)
-                
-                if np.random.random() < move_prob:
-                    if social_field > 0:
-                        target_spin = 1  # 向L4移动
-                    else:
-                        target_spin = -1  # 向L2移动
-                    
-                    self.spin = target_spin
-                    new_level = self._spin_to_level(target_spin)
-                    if new_level != current_level:
-                        self.dependency_level = new_level
-                        self.dependency_trajectory.append(new_level)
-            # 否则保持L3（不操作）
-        
-        elif new_spin != current_spin:
-            # 标准Ising翻转（适用于L1,L2,L4,L5）
-            flip_energy = 2 * current_spin * social_field
-            base_flip_prob = 1.0 / (1.0 + np.exp(flip_energy / temperature))
-            
-            # 应用状态粘性调整
-            adjusted_flip_prob = base_flip_prob * (1 - current_stability)
-            
-            if np.random.random() < adjusted_flip_prob:
-                self.spin = new_spin
-                new_level = self._spin_to_level(new_spin)
-                
-                if new_level != current_level:
-                    self.dependency_level = new_level
-                    self.dependency_trajectory.append(new_level)
+
+        if new_spin != self.spin:
+            self.spin = new_spin
+            new_level = self._spin_to_level(new_spin)
+            if new_level != current_level:
+                self.dependency_level = new_level
+                self.dependency_trajectory.append(new_level)
     
     def get_statistics(self) -> Dict:
         """获取智能体统计信息"""

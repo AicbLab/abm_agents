@@ -11,6 +11,7 @@ sys.path.insert(0, project_root)
 from simulation import SimulationConfig
 from experiments.exp3_ai_evolution.simulation_evolution import EvolutionSimulation
 from experiments.exp3_ai_evolution.visualization_evolution import visualize_evolution_results
+from config import RESULTS
 
 
 def run_experiment3():
@@ -80,7 +81,7 @@ def run_experiment3():
     # 生成可视化
     print("\n" + "="*70)
     print("生成可视化...")
-    visualize_evolution_results(sim, output_dir="experiments/exp3_ai_evolution/results")
+    visualize_evolution_results(sim, output_dir=RESULTS["exp3"])
     
     print("\n" + "="*70)
     print("实验3完成!")

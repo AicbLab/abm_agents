@@ -6,6 +6,7 @@ sys.path.insert(0, project_root)
 import numpy as np
 from typing import Dict
 from simulation import ABMSimulation, SimulationConfig
+from config import RESULTS
 
 class AICompetitionSimulation(ABMSimulation):
     def __init__(self, config: SimulationConfig):
@@ -21,7 +22,9 @@ class AICompetitionSimulation(ABMSimulation):
         return results
 
 
-def visualize_competition_results(results, output_dir="experiments/exp7_ai_competition/results"):
+def visualize_competition_results(results, output_dir=None):
+    if output_dir is None:
+        output_dir = RESULTS["exp7"]
     """Generate visualization for Experiment 7"""
     import matplotlib.pyplot as plt
     from pathlib import Path

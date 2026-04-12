@@ -11,6 +11,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.insert(0, project_root)
 
 from models.ising_network import AdaptiveIsingNetwork
+from config import RESULTS
 
 
 def scan_J_critical():
@@ -173,7 +174,7 @@ def plot_J_scan(data):
         
         plt.tight_layout()
         
-        output_dir = "experiments/baseline_exp1/results"
+        output_dir = RESULTS["baseline"]
         os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, "J_scan_critical.png")
         plt.savefig(output_path, dpi=300, bbox_inches='tight')

@@ -4,9 +4,9 @@
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('Agg')  # 非交互式后端
+matplotlib.use('Agg')  # 必须在 import pyplot 之前设置，否则在图形环境中可能使用错误后端
+import matplotlib.pyplot as plt
 from typing import List, Dict, Optional
 import os
 
